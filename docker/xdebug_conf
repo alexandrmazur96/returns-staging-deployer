@@ -1,0 +1,12 @@
+zend_extension=xdebug.so
+[xdebug]
+xdebug.auto_trace = "0"
+xdebug.max_nesting_level = "2000000"
+xdebug.remote_enable = "1"
+xdebug.remote_handler = "dbgp"
+xdebug.remote_connect_back=0
+xdebug.remote_mode = "req"
+xdebug.remote_port = "9003"
+xdebug.remote_autostart = "1"
+xdebug.remote_host = "host.docker.internal"
+xdebug.idekey = "PHPSTORM"
