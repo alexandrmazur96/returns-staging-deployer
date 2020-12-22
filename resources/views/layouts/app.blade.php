@@ -33,7 +33,12 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-
+                        <li class="nav-item">
+                            <a href="/" class="nav-link">Deployer</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/version-changer" class="nav-link">Version Changer</a>
+                        </li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
