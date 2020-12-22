@@ -56,7 +56,7 @@ $('input[type=radio][name=project-radio]').change(function () {
     });
 });
 
-$('.deploy-btn').on('click', function () {
+$('.branch-ul').on('click', '.deploy-btn', function () {
     let _token = $('meta[name="csrf-token"]').attr('content');
     let branch = $(this).data('pr');
     let repo = $('input[name=project-radio]:checked', '.form-check').val();
@@ -129,7 +129,7 @@ function _buildBranchLi(branchInfo) {
     li += `<span class="branch-name" style="flex-grow: 1;padding-top:10px">${branchInfo['name']}</span>`
     li += '<div class="buttons-action">';
     if (branchInfo['pull_link'] !== null) {
-        li += `<a href="${branchInfo['pull_link']}" class="btn btn-info" style="margin:5px;">Link to PR</a>`;
+        li += `<a href="${branchInfo['pull_link']}" target="_blank" class="btn btn-info" style="margin:5px;">Link to PR</a>`;
     }
     li += `<button class="btn btn-success deploy-btn" data-pr="${branchInfo['name']}" style="margin:5px;">Deploy</button>`;
     li += '</div>';
