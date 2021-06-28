@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Returns Staging Deployer'),
+    'name' => env('APP_NAME', 'Returns Tools'),
 
     /*
     |--------------------------------------------------------------------------

@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Actions\Deployer\Index;
 use App\Services\BranchFetcher;
 use App\Services\Deployer\DeployerInterface;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use JsonException;
 
 class HomeController extends Controller
 {
-    private const CACHE_TTL = 5 * 60;
-
     /**
      * @return void
      */
@@ -25,29 +23,57 @@ class HomeController extends Controller
     /**
      * Show the application dashboard.
      *
-     * @param BranchFetcher $branchFetcher
+     * @param Index $indexAction
      * @return Renderable
-     * @throws JsonException
      */
-    public function actionIndex(BranchFetcher $branchFetcher): Renderable
+    public function actionIndex(Index $indexAction): Renderable
     {
-        $defaultRepository = config('app.github-default-project');
-        if (Cache::has($defaultRepository)) {
-            $branches = Cache::get($defaultRepository);
-        } else {
-            $branches = $branchFetcher->getBranches(env('GITHUB_ORGANIZATION'), $defaultRepository);
-            $pulls = $branchFetcher->getPullRequests(env('GITHUB_ORGANIZATION'), $defaultRepository);
-            $pullsReduced = $this->reducePulls($pulls, $defaultRepository);
-            $branches = $this->mapBranches($branches, $pullsReduced);
+        $tools = [
+            [
+                'name' => 'Returns',
+                'icon' => '<i class="fas fa-cubes"></i>',
+                'url' => route('returns-tool'),
+                'description' => 'Tools for creating returns for further manual testing.',
+            ],
+            [
+                'name' => 'Tracking',
+                'icon' => '<i class="far fa-compass"></i>',
+                'url' => route('tracking-tool'),
+                'description' => 'Tools for creating different tracking history.',
+            ],
+            [
+                'name' => 'Orders',
+                'icon' => '<i class="fas fa-cart-arrow-down"></i>',
+                'url' => route('orders-tool'),
+                'description' => 'Tools for creating orders for further manual testing.',
+            ],
+            [
+                'name' => 'Files',
+                'icon' => '<i class="fas fa-file-csv"></i>',
+                'url' => route('files-tool'),
+                'description' => 'Generate or/and download different kind of files for further testing.',
+            ],
+            [
+                'name' => 'Tests',
+                'icon' => '<i class="fas fa-vials"></i>',
+                'url' => route('tests-tool'),
+                'description' => 'Run tests here',
+            ],
+            [
+                'name' => 'API',
+                'icon' => '<i class="fas fa-bug"></i>',
+                'url' => route('api-tool'),
+                'description' => 'Generate dummy API requests and other stuff...',
+            ],
+        ];
 
-            Cache::add($defaultRepository, $branches, self::CACHE_TTL);
-        }
-        $branches = $branches->sortByDesc('pull_link');
+        return view('welcome')
+            ->with('tools', $tools);
+    }
 
-        return view('home')
-            ->with('branches', $branches)
-            ->with('projects', config('app.github-projects'))
-            ->with('defaultProject', $defaultRepository);
+    public function actionDeployer(Index $indexAction)
+    {
+        return $indexAction->run();
     }
 
     /**
@@ -78,46 +104,5 @@ class HomeController extends Controller
         $result = $deployer->deploy(env('GITHUB_ORGANIZATION'), $repository, $branch);
 
         return new JsonResponse(['success' => $result]);
-    }
-
-    private function reducePulls(Collection $pulls, $repository): array
-    {
-        return $pulls->reduce(
-            function ($carry, $item) use ($repository) {
-                $carry[$item['head']['ref']] = [
-                    'link' => sprintf(
-                        'https://github.com/%s/%s/pull/%d',
-                        env('GITHUB_ORGANIZATION'),
-                        $repository,
-                        $item['number']
-                    ),
-                    'user' => $item['user']['login'] ?? null,
-                ];
-
-                return $carry;
-            },
-            []
-        );
-    }
-
-    private function mapBranches(Collection $branches, array $pullsReduced): Collection
-    {
-        return $branches->map(
-            function (array $branch) use ($pullsReduced) {
-                if (isset($pullsReduced[$branch['name']])) {
-                    return [
-                        'name' => $branch['name'],
-                        'pull_link' => $pullsReduced[$branch['name']]['link'],
-                        'user' => $pullsReduced[$branch['name']]['user'],
-                    ];
-                }
-
-                return [
-                    'name' => $branch['name'],
-                    'pull_link' => null,
-                    'user' => null,
-                ];
-            }
-        );
     }
 }

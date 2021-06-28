@@ -122,7 +122,7 @@ function _getDismissibleAlert(deployResult, project, branch) {
 }
 
 function _buildBranchLi(branchInfo) {
-    let li = '<li class="list-group-item" style="display: flex">';
+    let li = '<li class="list-group-item bg-secondary text-white" style="display: flex">';
     if (branchInfo['user'] !== null) {
         li += `<span class="badge badge-primary" style="height:16px;margin-top:14px;margin-right:5px">${branchInfo['user']}</span>`;
     }
